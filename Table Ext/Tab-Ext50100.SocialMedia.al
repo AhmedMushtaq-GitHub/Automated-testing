@@ -1,10 +1,10 @@
-tableextension 50100 "MNB Customer " extends Customer
+tableextension 50100 "CustomerTableExt " extends Customer
 {
 
     fields
     {
 
-        field(50105; "Lookup Value Code"; Code[10])
+        field(50100; "Lookup Value Code"; Code[10])
         {
             TableRelation = LookupValue;
         }
