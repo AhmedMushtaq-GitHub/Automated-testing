@@ -1,4 +1,4 @@
-codeunit 50100 "LookupValue UT Customer"
+codeunit 50102 "LookupValue UT Customer"
 {
     Subtype = Test;
 
@@ -12,7 +12,7 @@ codeunit 50100 "LookupValue UT Customer"
     begin
         //[FEATURE] LookupValue UT Customer 
     end;
-
+    //SCENARIO #0001---------------------------------------------------------------------------------
     [Test]
     procedure AssignLookupValueToCustomer()
     var
@@ -27,12 +27,54 @@ codeunit 50100 "LookupValue UT Customer"
         CreateCustomer(customer);
 
         //[WHEN] Set lookup value on customer
-        SetLookupValueOnCustomer();
+        SetLookupValueOnCustomer(customer, lookupValueCode);
         //[THEN] Customer has lookup value code field populated
         VerifyLookupValueOnCustomer(customer."No.", lookUpValueCode);
     end;
+    //SCENARIO #0002---------------------------------------------------------------------------------
+    [Test]
+    procedure AssignNonExistingLookupValueToCustomer()
+    var
+        customer: Record Customer;
+        lookupValueCode: Code[10];
+    begin
+        //[SCENARIO #0002] Assign non-existing lookup value to customer
 
-    local procedure CreateLookupValueCode(): Code[10]
+        //[GIVEN] Non-existing lookup value
+        lookupValueCode := 'SC #0002';
+        //[GIVEN] Customer record variable
+
+        //[WHEN] Set non-existing lookup value on customer
+        asserterror SetLookupValueOnCustomer(customer, lookupValueCode);
+        //[THEN] Non existing lookup value error thrown
+        VerifyNonExistingLookupValueError(lookupValueCode);
+        //[THEN] Non existing lookup value error thrown
+        //VerifyNonExistingLookupValueError('LUC');
+
+
+    end;
+    //SCENARIO #0003---------------------------------------------------------------------------------
+    [Test]
+    procedure "Assign lookup value on customer card"()
+    var
+        customerCard: TestPage "Customer Card";
+        customerNo: Code[20];
+        lookupValueCode: Code[10];
+    begin
+
+        // [SCENARIO #0003] Assign lookup value on customer card
+        // [GIVEN] Lookup value
+        lookupValueCode := CreateLookupValueCode();
+        // [GIVEN] Customer card
+        CreateCustomerCrad(customerCard);
+        // [WHEN] Set lookup value on customer card
+        customerNo := SetLookupValueOnCustomerCard(customerCard, lookupValueCode);
+        // [THEN] Customer has lookup value code field populated
+        VerifyLookupValueOnCustomer(customerNo, lookupValueCode);
+
+    end;
+    //procedures SCENARIO #0001////////////////////////////////////////////////////
+    procedure CreateLookupValueCode(): Code[10]
     var
         LookupValue: Record LookupValue;
     begin
@@ -55,10 +97,8 @@ codeunit 50100 "LookupValue UT Customer"
         LibrarySales.CreateCustomer(customer);
     end;
 
-    local procedure SetLookupValueOnCustomer()
-    var
-        customer: Record Customer;
-        lookupValueCode: Code[10];
+    local procedure SetLookupValueOnCustomer(var customer: Record Customer; lookupValueCode: Code[10])
+
 
     begin
         customer.Validate("Lookup Value Code", lookupValueCode);
@@ -82,19 +122,65 @@ codeunit 50100 "LookupValue UT Customer"
         );
     end;
 
-    // local procedure LibraryAssertEqual(Expected: Variant; Actual: Variant; Msg: Text);
+    local procedure LibraryAssertEqual(Expected: Variant; Actual: Variant; Msg: Text);
 
-    // begin
-    //     if not Equal(Expected, Actual) then
-    //         Error(
-    //             AreEqualFailedErr,
-    //             Expected,
-    //             TypeNameOf(Expected),
-    //             Actual,
+    begin
+        // if not Equal(Expected, Actual) then
+        //     Error(
+        //         AreEqualFailedErr,
+        //         Expected,
+        //         TypeNameOf(Expected),
+        //         Actual,
 
-    //             TypeNameOf(Actual),
-    //             Msg
-    //         );
-    //     ;
-    // end;
+        //         TypeNameOf(Actual),
+        //         Msg
+        //     );
+        // ;
+    end;
+    //procedures SCENARIO #0002////////////////////////////////////////////////////
+
+
+
+    local procedure VerifyNonExistingLookupValueError(lookupValueCode: Code[10])
+    var
+        customer: Record Customer;
+        lookupValue: Record LookupValue;
+        valueCannotBeFoundInTableTxt: Label
+        'The field %1 of table %1 contains a value (%3) that cannot be found in the related table (%4).';
+    begin
+        LibraryAssert.ExpectedError(
+        StrSubstNo(
+        valueCannotBeFoundInTableTxt,
+        customer.FieldCaption("Lookup Value Code"),
+        customer.TableCaption(),
+        lookupValueCode,
+        lookupValue.TableCaption()
+)
+        );
+    end;
+
+    //procedures SCENARIO #0003////////////////////////////////////////////////////
+    local procedure CreateCustomerCrad(Var
+        customerCard: TestPage "Customer Card")
+
+
+    begin
+        customerCard.OpenNew();
+    end;
+
+    local procedure SetLookupValueOnCustomerCard(var customerCard: TestPage "Customer Card";
+    lookupValueCode: Code[10])
+
+    CustomerNO: code[20]
+
+
+    begin
+        LibraryAssert.IsTrue(
+            customerCard."Lookup Value Code".Editable(),
+            'Editable'
+        );
+        customerCard."Lookup Value Code".SetValue(lookupValueCode);
+        CustomerNO := customerCard."No.".Value();
+        customerCard.Close();
+    end;
 }

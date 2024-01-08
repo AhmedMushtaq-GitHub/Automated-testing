@@ -10,7 +10,7 @@
              "serverInstance": "YOGBC142",
              "port": 14259,
             "authentication": "Windows",
-            "startupObjectId": 50107,
+            "startupObjectId": 22,
             "startupObjectType": "Page",
             "breakOnError": "All",
             "launchBrowser": true,
